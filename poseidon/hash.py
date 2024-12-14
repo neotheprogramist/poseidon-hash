@@ -2,7 +2,7 @@ import enum
 import numpy as np
 import galois
 
-from math import log2, ceil
+from math import log2, ceil, gcd
 from typing import Optional
 
 from . import round_constants as rc
@@ -42,11 +42,11 @@ class Poseidon:
         self.security_level = security_level
 
         # TODO: For now alpha is fixed parameter
-        if np.gcd(np.ulonglong(alpha), p - 1) == 1:
+        if gcd(np.ulonglong(alpha), p - 1) == 1:
             self.alpha = alpha
         else:
             print("Not available alpha")
-            exit(1)
+            raise Exception("Not available alpha")
 
         if prime_bit_len is not None:
             self.prime_bit_len = prime_bit_len
@@ -84,6 +84,7 @@ class Poseidon:
             if len(rc_list) != self.t * (self.full_round + self.partial_round):
                 raise ValueError('Invalid number of round constants')
             self.rc_field = self.field_p([int(x, 16) for x in rc_list])
+            print(f"rc_field: {self.rc_field}")
         else:
             self.rc_field = rc.calc_round_constants(self.t, self.full_round, self.partial_round, self.p, self.field_p,
                                                     self.alpha, self.prime_bit_len)
